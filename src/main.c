@@ -1,23 +1,31 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
+#include "core/logger.h"
 #include "wad_reader.h"
 
+#define DEFAULT_WAD "wad/DOOM.WAD"
+
 int main(int argc, char *argv[]) {
-    /* struct WAD wad = read_wad("wad/DOOM.WAD"); */
-    /* struct WAD_Header header = wad.header; */
+    char *wadpath;
 
-    /* printf("# Header #\n"); */
-    /* printf("ID: %s\nLump Count: %d\nDirectory Offset: %d\n\n", */
-    /*        header.wad_type, header.lump_count, header.directory_offset); */
+    const char *usage = "Usage: %s <WAD>\n";
 
-    /* printf("# Directory #\n"); */
-    /* for(int i = 0; i < header.lump_count/50; i++) { */
-    /*     printf("{'offset': %d, 'size': %d, 'name': '%s'}\n", */
-    /*            wad.directory[i].offset, wad.directory[i].size, */
-    /*            wad.directory[i].name); */
-    /* } */
+    if(argc >= 2) {
+        if(strcmp(argv[1], "-h") == 0) {
+            fprintf(stderr, "%s\n", usage);
+            exit(EXIT_SUCCESS);
+        }
 
-    /* close_wad(wad); */
-    open_wad("wad/DOOM.WAD");
+        wadpath = argv[1];
+    } else {
+        INFO("No WAD specified. Using default: %s", DEFAULT_WAD);
+        wadpath = DEFAULT_WAD;
+    }
+
+    struct WAD wad = read_wad(wadpath);
+
+    close_wad(wad);
     return 0;
 }

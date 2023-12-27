@@ -20,10 +20,8 @@ struct WAD {
     struct File_Lump *directory;
 };
 
-struct WAD_Header read_header(int wadfile);
-struct File_Lump *read_directory(int wadfile, int lump_count, off_t offset);
-
+struct WAD_Header read_header(const char *path);
+struct File_Lump *read_directory(const char *path, struct WAD_Header header);
 struct WAD read_wad(const char *path);
 
-void open_wad(const char *path);
 void close_wad(struct WAD wad);

@@ -5,82 +5,105 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #include "core/logger.h"
 
-struct WAD_Header read_header(int wadfile) {
+struct WAD_Header read_header(const char *path) {
+    int wadfile;
     struct WAD_Header header;
+    int s;
 
-    read(wadfile, &header.wad_type, 4); // ascii - IWAD or PWAD
-    read(wadfile, &header.lump_count, 4);
-    read(wadfile, &header.directory_offset, 4);
+    wadfile = open(path, O_RDONLY);
+    if(wadfile < 0) {
+        int e = errno;
+        FATAL("Failed to open file %s: %s", path, strerror(e));
+        exit(EXIT_FAILURE);
+    }
+
+    s = read(wadfile, &header, sizeof(header));
+    if(s == -1) {
+        int e = errno;
+        FATAL("Failed to read from WAD: %s", strerror(e));
+        exit(EXIT_FAILURE);
+    }
+
+    s = close(wadfile);
+    if(s == -1) {
+        int e = errno;
+        FATAL("Failed to close file %s: %s", path, strerror(e));
+        exit(EXIT_FAILURE);
+    }
+
     return header;
 }
 
-struct File_Lump *read_directory(int wadfile, int lump_count, off_t offset) {
-    struct File_Lump *directory = malloc(sizeof(struct File_Lump) * lump_count);
-    lseek(wadfile, offset, SEEK_SET);
-    for(int i = 0; i < lump_count; i++) {
-        struct File_Lump lump = {0};
-        read(wadfile, &lump.pos, 4);
-        read(wadfile, &lump.size, 4);
-        char n[9];
-        read(wadfile, n, 8);
-        n[8] = 0;
-        strncpy(lump.name, n, 8);
-        /* read(wadfile, &lump, sizeof(struct File_Lump)); */
-        if(i < 25) printf("%s\n",n);
-        directory[i] = lump;
+struct File_Lump *read_directory(const char *path, const struct WAD_Header header) {
+    int wadfile;
+    struct File_Lump *directory = {0};
+    uint32_t numlumps;
+    off_t infotableofs;
+    size_t infotablesize;
+    int s;
+
+    wadfile = open(path, O_RDONLY);
+    if(wadfile < 0) {
+        int e = errno;
+        FATAL("Failed to open file %s: %s", path, strerror(e));
+        exit(EXIT_FAILURE);
+    }
+
+    numlumps = header.lump_count;
+    infotableofs = header.directory_offset;
+    infotablesize = numlumps * sizeof(struct File_Lump);
+
+    directory = malloc(infotablesize);
+    if(directory == NULL) {
+        int e = errno;
+        FATAL("Failed to allocate %d bytes: %s", infotablesize, strerror(e));
+        exit(EXIT_FAILURE);
+    }
+
+    s = lseek(wadfile, infotableofs, SEEK_SET);
+    if(s == -1) {
+        int e = errno;
+        FATAL("Failed to seek in file %s: %s", path, strerror(e));
+        exit(EXIT_FAILURE);
+    }
+
+    /*
+     * BE CAREFUL HERE!!!!
+     * NOT ALL STRINGS STORED IN THE DIRECTORY ARE NULL TERMINATED
+     * LIMIT THE AMOUNT YOURE READING FROM THEM
+     */
+    s = read(wadfile, directory, infotablesize);
+    if(s == -1) {
+        int e = errno;
+        FATAL("Failed to read from WAD: %s", strerror(e));
+        exit(EXIT_FAILURE);
+    }
+
+    s = close(wadfile);
+    if(s == -1) {
+        int e = errno;
+        FATAL("Failed to close file %s: %s", path, strerror(e));
+        exit(EXIT_FAILURE);
     }
 
     return directory;
 }
 
 struct WAD read_wad(const char *path) {
-    int wadfile;
     struct WAD wad;
-
-    wadfile = open(path, O_RDONLY);
-
-    wad.header = read_header(wadfile);
-    wad.directory = read_directory(wadfile, wad.header.lump_count,
-                                   wad.header.directory_offset);
-
-    close(wadfile);
-    return wad;
-}
-
-void open_wad(const char *path) {
-    int wadfile;
     struct WAD_Header header;
-    uint32_t numlumps;
-    uint32_t infotableofs;
     struct File_Lump *directory;
-    size_t infotablesize;
-    
-    wadfile = open(path, O_RDONLY);
 
-    read(wadfile, &header, sizeof(header));
+    header = read_header(path);
+    directory = read_directory(path, header);
 
-    if(strncmp(header.wad_type, "IWAD", 4)) {
-        WARN("wadfile has a weirdo header");
-    }
+    wad.header = header;
+    wad.directory = directory;
 
-    numlumps = header.lump_count;
-    infotableofs = header.directory_offset;
-    infotablesize = sizeof(struct File_Lump) * numlumps;
-
-    directory = malloc(infotablesize);
-    lseek(wadfile, infotableofs, SEEK_SET);
-    read(wadfile, directory, infotablesize);
-
-    for(int i = 0; i < numlumps/50; i++) {
-        printf("%.8s\n", directory[i].name);
-    }
-
-    // Are we done reading from the file?
-    close(wadfile);
-
-    free(directory);
+    return wad;
 }
 
 void close_wad(struct WAD wad) {
