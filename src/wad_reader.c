@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+
 #include "core/logger.h"
 
 struct WAD_Header read_header(const char *path) {

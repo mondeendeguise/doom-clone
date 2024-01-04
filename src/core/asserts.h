@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../defines.h"
+#include <stdint.h>
 
 #define ASSERTIONS_ENABLED
 
@@ -13,7 +14,7 @@
 #endif
 
 API void report_assertion_failure(const char *expression, const char *message,
-        const char *file, i32 line);
+        const char *file, int32_t line);
 
 #define ASSERT(expr) {                                            \
     if(expr) {                                                    \
@@ -32,20 +33,20 @@ API void report_assertion_failure(const char *expression, const char *message,
 }
 
 #ifdef _DEBUG
-#define ASSERT_DEBUG(expr)                                            \
-    {                                                                 \
-        if(expr) {                                                    \
-        } else {                                                      \
-            report_assertion_failure(#expr, "", __FILE__, __LINE__);  \
-            debug_break();                                            \
-        }                                                             \
-    }
+#define ASSERT_DEBUG(expr) {                                      \
+    if(expr) {                                                    \
+    } else {                                                      \
+        report_assertion_failure(#expr, "", __FILE__, __LINE__);  \
+        debug_break();                                            \
+    }                                                             \
+}
+
 #else
 #define ASSERT_DEBUG(expr)
 #endif
 
 #else // assertions_enabled
-#define ASSER(expr)
-#define ASSER_MSG(expr, msg)
+#define ASSERT(expr)
+#define ASSERT_MSG(expr, msg)
 #define ASSERT_DEBUG(expr)
 #endif

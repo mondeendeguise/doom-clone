@@ -4,6 +4,7 @@
 
 #include "core/logger.h"
 #include "wad_reader.h"
+#include "lump.h"
 
 #define DEFAULT_WAD "wad/DOOM.WAD"
 

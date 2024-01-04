@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../defines.h"
+#include <stdint.h>
 
 #define LOG_WARN_ENABLED 1
 #define LOG_INFO_ENABLED 1
@@ -21,7 +22,7 @@ enum LOG_LEVEL {
     E_TRACE = 5,
 };
 
-i32 initialize_logging(void);
+int32_t initialize_logging(void);
 void shutdown_logging(void);
 
 API void log_output(enum LOG_LEVEL log_level, const char *message, ...);
