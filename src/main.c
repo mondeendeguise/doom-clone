@@ -27,6 +27,11 @@ int main(int argc, char *argv[]) {
 
     struct WAD wad = read_wad(wadpath);
 
+    struct Vertex *vertices = read_vertices(wadpath, "E1M1");
+
+    /* int32_t name_index = get_lump_index(wadpath, "E1M1"); */
+    /* printf("E1M1: %i\n", name_index); */
+
     close_wad(wad);
     return 0;
 }
