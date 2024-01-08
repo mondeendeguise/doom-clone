@@ -111,6 +111,41 @@ int32_t get_lump_index(const char *path, const char *lump_name) {
     return -1;
 }
 
+int32_t get_vertex_count(const char *path, const char *map_name) {
+    struct WAD_Header header = read_header(path);
+    struct File_Lump *directory;
+
+    directory = read_directory(path);
+    int32_t numlumps = header.lump_count;
+
+    enum LUMP_INDICES {
+        LABEL     = 0,
+        THINGS    = 1,
+        LINEDEFS  = 2,
+        SIDEDEFS  = 3,
+        VERTEXES  = 4,
+        SEGS      = 5,
+        SSECTORS  = 6,
+        NODES     = 7,
+        SECTORS   = 8,
+        REJECT    = 9,
+        BLOCKMAP  = 10,
+    };
+    
+    // Find map
+    struct File_Lump map_vertices;
+    for(int i = 0; i < numlumps; i++) {
+        if((strcmp(directory[i].name, map_name)) == 0) {
+            map_vertices = directory[i + VERTEXES];
+            break;
+        }
+    }
+
+    int32_t vertex_count = map_vertices.size / sizeof(struct Vertex);
+
+    return vertex_count;
+}
+
 struct Vertex *read_vertices(const char *path, const char *map_name) {
     int wadfile;
     struct WAD_Header header = read_header(path);
@@ -170,9 +205,9 @@ struct Vertex *read_vertices(const char *path, const char *map_name) {
         FATAL("Failed to close file %s: %s", path, strerror(errno));
     }
 
-    for(int i = 0; i < vertex_count; i++) {
-        printf("%i, %i\n", vertices[i].x, vertices[i].y);
-    }
+    /* for(int i = 0; i < vertex_count; i++) { */
+    /*     printf("%i, %i\n", vertices[i].x, vertices[i].y); */
+    /* } */
 
     free(directory);
     return vertices;

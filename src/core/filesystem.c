@@ -16,33 +16,39 @@ char *buffer_file(const char *path) {
     f = fopen(path, "rb");
     if(f == NULL) {
         ERROR("Failed to open file %s: %s", path, strerror(errno));
+        return NULL;
     }
 
     s = fseek(f, 0, SEEK_END);
     if(s != 0) {
         ERROR("Failed to seek in file %s: %s", path, strerror(errno));
+        return NULL;
     }
 
     length = ftell(f);
     if(length == -1) {
         ERROR("Failed to get offset in file %s: %s", path, strerror(errno));
+        return NULL;
     }
 
     s = fseek(f, 0, SEEK_SET);
     if(s != 0) {
         ERROR("Failed to seek in file %s: %s", path, strerror(errno));
+        return NULL;
     }
 
     buffer = malloc(length);
     if(buffer == NULL) {
-        ERROR("Failed to allocate memory: %s", strerror(errno));
+        FATAL("Failed to allocate memory: %s", strerror(errno));
+        exit(EXIT_FAILURE);
     }
 
     fread(buffer, 1, length, f);
 
     s = fclose(f);
     if(s != 0) {
-        ERROR("Failed to close file: %s", strerror(errno));
+        FATAL("Failed to close file: %s", strerror(errno));
+        exit(EXIT_FAILURE);
     }
 
     return buffer;
