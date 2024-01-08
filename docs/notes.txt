@@ -1,0 +1,102 @@
+-----------------------
+BITCOUNTS
+-----------------------
+byte        8
+short      16
+int, long  32
+
+-----------------------
+LUMPS
+-----------------------
+PLAYPAL     fourteen 256 color palettes
+COLORMAP
+ENDOOM
+DEMOx       demos, 1-3
+ExMy        Episode x (1-3), Mission y (1-9)
+MAPxy       like ExMy, but for DOOM 2 (01-32)
+TEXTURE1
+TEXTURE2
+PNAMES
+GENMIDI     General MIDI standard instrument data
+DMXGUS      Gravis Ultra Sound instrument patches
+
+D_ExMy      Music for a DOOM I level
+D_INTER     Music played on the summary screen between levels
+D_INTRO     Music played when the game starts
+D_INTROA    More introductory music
+D_VICTOR    Music played on the victory text screen after an episode
+D_BUNNY     Music for while a certain rabbit has his story told
+D_*         Music for a DOOM II level
+
+DP_*        PC speaker sound effects
+DS_*        Soundcard sound effects
+
+-----------------------
+LEVELS
+-----------------------
+each level has the following:
+
+LABEL
+THINGS
+LINEDEFS
+SIDEDEFS
+VERTEXES
+SEGS
+SSECTORS
+NODES
+SECTORS
+REJECT
+BLOCKMAP
+
+-----------------------
+Source code structure - from https://doomwiki.org/wiki/Doom_source_code
+-----------------------
+
+The source code can be divided into sections. Files and functions within the
+source code have one- or two-letter prefixes to denote their subsystem.
+
+AM_*
+    Automap code
+D_*
+    Initialisation/general code
+F_*
+    "Finale" (end of game) and "screen melt" code.
+G_*
+    Main game loop/control
+HU_*
+    Heads-up display
+I_*
+    System-specific code
+M_*
+    Miscellaneous (includes the menu)
+P_*
+    Game logic/behaviour
+R_*
+    Rendering engine
+S_*
+    Sound code
+ST_*
+    Status bar
+V_*
+    General graphic rendering
+WI_*
+    End-of level "intermission" screen
+W_*
+    WAD file loading
+Z_*
+    Zone memory allocation system
+
+The following are common prefixes for functions, although they do not denote a
+particular subsystem, and there are no files with these prefixes:
+
+A_*
+    Action functions invoked in sprite movement frames (these are the functions
+    used in DeHackEd "code pointers")
+PIT_*
+    Callback functions passed to P_BlockThingsIterator (see p_maputl.c)
+T_*
+    "Thinker" functions set to be called each clock tic for some purpose (eg,
+    moving platforms or flickering lights)
+
+A detailed list of files and their purposes can be found in Doom source code
+files.
