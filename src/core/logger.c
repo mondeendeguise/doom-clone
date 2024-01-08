@@ -4,10 +4,11 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdbool.h>
 
-i32 initialize_logging(void) {
+int32_t initialize_logging(void) {
     // TODO: create log file
-    return TRUE;
+    return true;
 }
 
 void shutdown_logging(void) {
@@ -20,7 +21,7 @@ void log_output(enum LOG_LEVEL level, const char *message, ...) {
         "[FATAL]: ", "[ERROR]: ",
         "[WARN]: ", "[INFO]: ", "[DEBUG]: ", "[TRACE]: ",
     };
-    b8 is_error = level < 2;
+    bool is_error = level < 2;
 
     // Technically imposes a 32k char limit on a single log entry
     // You should not do that though...
@@ -40,7 +41,7 @@ void log_output(enum LOG_LEVEL level, const char *message, ...) {
 }
 
 void report_assertion_failure(const char *expression, const char *message,
-                              const char *file, i32 line) {
+                              const char *file, int32_t line) {
     log_output(E_FATAL, "Assertion Failure: %s, message: '%s', in file: %s, "
                         "in file %s, line: %d\n",
                expression, message, file, line);
