@@ -1,7 +1,5 @@
 #pragma once
 
-#include "wad.h"
-
 #include <stdint.h>
 
 struct Thing {        // THINGS

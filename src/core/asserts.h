@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../defines.h"
 #include <stdint.h>
 
 #define ASSERTIONS_ENABLED
@@ -13,7 +12,7 @@
 #define debug_break(void) __builtin_trap()
 #endif
 
-API void report_assertion_failure(const char *expression, const char *message,
+void report_assertion_failure(const char *expression, const char *message,
         const char *file, int32_t line);
 
 #define ASSERT(expr) {                                            \

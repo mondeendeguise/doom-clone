@@ -1,3 +1,3 @@
-wad
-build
+build/*
 *.o
+*.WAD

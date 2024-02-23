@@ -1,37 +1,40 @@
-SHELL := /bin/sh
-CC := clang
+SHELL 	:= /bin/sh
+CC 		:= clang
+LINK	:= clang
 
-CFLAGS := -g -Wall
+CFLAGS 	:= -ggdb -Wall -Wextra -pedantic -std=c99 -Wno-gnu-zero-variadic-macro-arguments
 LDFLAGS :=
-INCLUDE :=
-DEFINES :=
+LIBS	:= -lc -lm -lGL -lglfw -lGLEW
+INCLUDE := -I./src
+DEFINES := -D_GNU_SOURCE
 
-FLAGS = ${CFLAGS} ${LDFLAGS} ${INCLUDE} ${DEFINES}
+FLAGS = ${CFLAGS} ${INCLUDE} ${DEFINES}
 
 BINDIR := ./build
-BIN := ${BINDIR}/doom-engine
+BIN := DOOM
 
 SRCDIR := ./src
 OBJDIR := ${BINDIR}/obj
 
-SRC = ${wildcard ${SRCDIR}/*.c ${SRCDIR}/*/*.c}
+SRC = ${wildcard ${SRCDIR}/*.c ${SRCDIR}/core/*.c ${SRCDIR}/wad/*.c}
 OBJ = ${patsubst ${SRCDIR}/%.c, ${OBJDIR}/%.o, ${SRC}}
 
 .PHONY : all run clean
 
 all : ${BIN}
 
-run : all
-	${BIN}
-
 ${BIN} : ${OBJ}
 	@mkdir -p ${dir $@}
-	${CC} ${FLAGS} $^ -o $@
+	@${LINK} ${LDFLAGS} ${LIBS} $^ -o $@
+	@echo " LD -> $@"
 
 ${OBJDIR}/%.o : ${SRCDIR}/%.c
 	@mkdir -p ${dir $@}
-	${CC} ${FLAGS} -c $< -o $@
+	@${CC} ${FLAGS} -c $< -o $@
+	@echo " CC    $<"
 
 clean :
-	rm ${BIN}
-	rm ${OBJ}
+	@rm -f ${BIN}
+	@rm -f ${OBJ}
+	@rm -rf ${OBJDIR}/*
+	@rm -rf ${BINDIR}/*
